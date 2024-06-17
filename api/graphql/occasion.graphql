@@ -1,0 +1,67 @@
+extend type Query @guard {
+    """
+    List multiple occasions.
+    """
+    occasions(
+        """
+        Filters by title. Accepts SQL LIKE wildcards `%` and `_`.
+        """
+        title: String @where(operator: "like")
+    ): [Occasion!]!
+    @inject(context: "user.id", name: "user_id")
+    @paginate(defaultCount: 10)
+}
+
+extend type Mutation @guard {
+    createOccasion(
+        input: CreateOccasionInput! @spread
+    ): Occasion!
+    @field(resolver: "App\\GraphQL\\Mutations\\Occasions\\CreateOccasionMutation")
+
+    updateOccasion(
+        input: UpdateOccasionInput! @spread
+    ): Occasion!
+    @field(resolver: "App\\GraphQL\\Mutations\\Occasions\\UpdateOccasionMutation")
+
+    deleteOccasion(
+        id: UUID
+    ): Occasion!
+    @field(resolver: "App\\GraphQL\\Mutations\\Occasions\\DeleteOccasionMutation")
+}
+
+input CreateOccasionInput @validator(class: "App\\GraphQL\\Validators\\Occasions\\CreateOccasionValidator") {
+    title: String!
+    slug: String!
+    photo: Upload
+}
+
+input UpdateOccasionInput @validator(class: "App\\GraphQL\\Validators\\Occasions\\UpdateOccasionValidator") {
+    title: String!
+    slug: String!
+    photo: Upload
+}
+
+"""
+Account of a person who utilizes this application.
+"""
+type Occasion @model(class: "\\App\\Models\\Occasion") {
+    "Unique primary key."
+    id: UUID! @rename(attribute: "uuid")
+
+    "The owner of the occasion"
+    user: User! @belongsTo
+
+    "Non-unique name."
+    title: String!
+
+    "unique."
+    slug: String!
+
+    photo: String
+
+    "When the account was created."
+    createdAt: DateTime! @rename(attribute: "created_at")
+
+    "When the account was last updated."
+    updatedAt: DateTime! @rename(attribute: "updated_at")
+}

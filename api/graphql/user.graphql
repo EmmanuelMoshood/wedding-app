@@ -1,0 +1,54 @@
+extend type Query {
+    me: User @auth
+}
+
+extend type Mutation {
+    login(
+        input: LoginInput @spread
+    ): AccessToken!
+    @field(resolver: "App\\GraphQL\\Mutations\\Auth\\Login")
+
+    register(
+        input: RegisterInput @spread
+    ): AccessToken!
+    @field(resolver: "App\\GraphQL\\Mutations\\Auth\\Register")
+
+    logout: User @guard
+    @field(resolver: "App\\GraphQL\\Mutations\\Auth\\Logout")
+}
+
+input LoginInput {
+    email: String! @rules(apply: ["email"])
+    password: String!
+}
+
+input RegisterInput {
+    name: String!
+    email: String! @rules(apply: ["email"])
+    password: String!
+}
+
+type AccessToken {
+    token: String!
+}
+
+"Account of a person who utilizes this application."
+type User {
+    "Unique primary key."
+    id: UUID! @rename(attribute: "uuid")
+
+    "Non-unique name."
+    name: String!
+
+    "Unique email address."
+    email: String!
+
+    "When the email was verified."
+    emailVerifiedAt: DateTime @rename(attribute: "email_verified_at")
+
+    "When the account was created."
+    createdAt: DateTime! @rename(attribute: "created_at")
+
+    "When the account was last updated."
+    updatedAt: DateTime! @rename(attribute: "updated_at")
+}

@@ -1,0 +1,16 @@
+"Account of a person who utilizes this application."
+type Guest {
+    "Unique primary key."
+    id: UUID! @rename(attribute: "uuid")
+
+    user: User!
+
+    "Non-unique name."
+    name: String!
+
+    "When the account was created."
+    createdAt: DateTime! @rename(attribute: "created_at")
+
+    "When the account was last updated."
+    updatedAt: DateTime! @rename(attribute: "updated_at")
+}

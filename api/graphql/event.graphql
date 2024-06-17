@@ -1,0 +1,75 @@
+extend type Query @guard {
+    """
+    List multiple events.
+    """
+    events(
+        """
+        Filters by title. Accepts SQL LIKE wildcards `%` and `_`.
+        """
+        title: String @where(operator: "like")
+
+        """
+        Filters by occasion.
+        """
+        occasion: UUID
+    ): [Event!]!
+    @inject(context: "user.id", name: "user_id")
+    @paginate(defaultCount: 10)
+}
+
+extend type Mutation @guard {
+    createEvent(
+        input: CreateEventInput! @spread
+    ): Event!
+    @field(resolver: "App\\GraphQL\\Mutations\\Events\\CreateEventMutation")
+
+    updateEvent(
+        input: UpdateEventInput! @spread
+    ): Event!
+    @field(resolver: "App\\GraphQL\\Mutations\\Events\\UpdateEventMutation")
+
+    deleteEvent(
+        id: UUID
+    ): Event!
+    @field(resolver: "App\\GraphQL\\Mutations\\Events\\DeleteEventMutation")
+}
+
+input CreateEventInput @validator(class: "App\\GraphQL\\Validators\\Events\\CreateEventValidator") {
+    title: String!
+    invite: Upload
+    occasion: UUID
+    starts: DateTime
+    ends: DateTime
+}
+
+input UpdateEventInput @validator(class: "App\\GraphQL\\Validators\\Events\\UpdateEventValidator") {
+    title: String
+    invite: Upload
+    starts: DateTime
+    ends: DateTime
+}
+
+"""
+Account of a person who utilizes this application.
+"""
+type Event @model(class: "\\App\\Models\\Event") {
+    "Unique primary key."
+    id: UUID! @rename(attribute: "uuid")
+
+    "The owner of the event"
+    user: User! @belongsTo
+
+    "The ocassion the event belongs to"
+    occasion: Occasion! @belongsTo
+
+    "Non-unique name."
+    title: String!
+
+    invite: String
+
+    "When the account was created."
+    createdAt: DateTime! @rename(attribute: "created_at")
+
+    "When the account was last updated."
+    updatedAt: DateTime! @rename(attribute: "updated_at")
+}

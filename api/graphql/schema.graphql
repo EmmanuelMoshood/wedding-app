@@ -1,0 +1,8 @@
+#import scalar.graphql
+
+#import occasion.graphql
+#import event.graphql
+#import guest.graphql
+#import invitation.graphql
+
+#import user.graphql
